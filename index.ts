@@ -14,7 +14,7 @@ enum RawTile {
   KEY2, LOCK2
 }
 
-interface Tile2 {
+interface Tile {
   isAir(): boolean;
   isPlayer(): boolean;
   isFlux(): boolean;
@@ -34,7 +34,7 @@ interface Tile2 {
   isStony(): boolean
   isBoxy(): boolean
 }
-class Flux implements Tile2 {
+class Flux implements Tile {
   isAir() { return false; }
   isPlayer() { return false; }
   isFlux() { return true; }
@@ -67,7 +67,7 @@ class Flux implements Tile2 {
     return false
   }
 }
-class Air implements Tile2 {
+class Air implements Tile {
   isAir() { return true; }
   isPlayer() { return false; }
   isFlux() { return false; }
@@ -94,7 +94,7 @@ class Air implements Tile2 {
     return false
   }
 }
-class Player implements Tile2 {
+class Player implements Tile {
   isAir() { return false; }
   isPlayer() { return true; }
   isFlux() { return false; }
@@ -117,7 +117,7 @@ class Player implements Tile2 {
     return false
   }
 }
-class Unbreakable implements Tile2 {
+class Unbreakable implements Tile {
   isAir() { return false; }
   isPlayer() { return false; }
   isFlux() { return false; }
@@ -148,15 +148,15 @@ class Unbreakable implements Tile2 {
 }
 interface FallingState {
   isFalling(): boolean;
-  moveHorizontal(tile: Tile2, dx: number): void;
+  moveHorizontal(tile: Tile, dx: number): void;
 }
 class Falling implements FallingState {
   isFalling() { return true; }
-  moveHorizontal(tile: Tile2, dx: number) { }
+  moveHorizontal(tile: Tile, dx: number) { }
 }
 class Resting implements FallingState {
   isFalling() { return false; }
-  moveHorizontal(tile: Tile2, dx: number) {
+  moveHorizontal(tile: Tile, dx: number) {
     if (map[playery][playerx + dx + dx].isAir()
       && !map[playery + 1][playerx + dx].isAir()) {
       map[playery][playerx + dx + dx] = tile;
@@ -164,7 +164,7 @@ class Resting implements FallingState {
     }
   }
 }
-class Stone implements Tile2 {
+class Stone implements Tile {
   constructor(private falling: FallingState) { }
   isAir() { return false; }
   isPlayer() { return false; }
@@ -198,7 +198,7 @@ class Stone implements Tile2 {
     return false
   }
 }
-class Box implements Tile2 {
+class Box implements Tile {
   constructor(private falling: FallingState) { }
   isAir() { return false; }
   isPlayer() { return false; }
@@ -232,7 +232,7 @@ class Box implements Tile2 {
     return true
   }
 }
-class Key1 implements Tile2 {
+class Key1 implements Tile {
   isAir() { return false; }
   isPlayer() { return false; }
   isFlux() { return false; }
@@ -267,7 +267,7 @@ class Key1 implements Tile2 {
     return false
   }
 }
-class Lock1 implements Tile2 {
+class Lock1 implements Tile {
   isAir() { return false; }
   isPlayer() { return false; }
   isFlux() { return false; }
@@ -296,7 +296,7 @@ class Lock1 implements Tile2 {
     return false
   }
 }
-class Key2 implements Tile2 {
+class Key2 implements Tile {
   isAir() { return false; }
   isPlayer() { return false; }
   isFlux() { return false; }
@@ -331,7 +331,7 @@ class Key2 implements Tile2 {
     return false
   }
 }
-class Lock2 implements Tile2 {
+class Lock2 implements Tile {
   isAir() { return false; }
   isPlayer() { return false; }
   isFlux() { return false; }
@@ -399,7 +399,7 @@ let rawMap: RawTile[][] = [
   [2, 2, 2, 2, 2, 2, 2, 2],
 ];
 
-let map: Tile2[][];
+let map: Tile[][];
 let inputs: Input[] = [];
 
 function removeLock1() {
