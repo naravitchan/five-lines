@@ -495,7 +495,6 @@ function moveToTile(newx: number, newy: number) {
   map[newy][newx] = new Player();
   playerx = newx;
   playery = newy;
-
 }
 
 // function moveVertical(dy: number) {
