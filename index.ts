@@ -301,11 +301,11 @@ class Key1 implements Tile {
       TILE_SIZE);
   }
   moveHorizontal(dx: number) {
-    removeLock1();
+    remove(new RemoveLock1());
     moveToTile(playerx + dx, playery);
   }
   moveVertical(dy: number) {
-    removeLock1();
+    remove(new RemoveLock1());
     moveToTile(playerx, playery + dy);
   }
   isStony() { return false; }
@@ -371,11 +371,11 @@ class Key2 implements Tile {
       TILE_SIZE);
   }
   moveHorizontal(dx: number) {
-    removeLock2();
+    remove(new RemoveLock2());
     moveToTile(playerx + dx, playery);
   }
   moveVertical(dy: number) {
-    removeLock2();
+    remove(new RemoveLock2());
     moveToTile(playerx, playery + dy);
   }
   isStony() { return false; }
@@ -459,37 +459,57 @@ let rawMap: RawTile[][] = [
 
 let map: Tile[][];
 let inputs: Input[] = [];
+interface RemoveStrategy {
+  check(tile: Tile): boolean;
+}
+class RemoveLock1 implements RemoveStrategy {
+  check(tile: Tile) {
+    return tile.isLock1();
+  }
+}
+class RemoveLock2 implements RemoveStrategy {
+  check(tile: Tile) {
+    return tile.isLock2();
+  }
+}
+function remove(shouldRemove: RemoveStrategy) {
+  for (let y = 0; y < map.length; y++)
+    for (let x = 0; x < map[y].length; x++) if (shouldRemove.check(map[y][x]))
+      map[y][x] = new Air();
+}
+// function removeLock1() {
+//   let shouldRemove = new RemoveLock1();
+//   for (let y = 0; y < map.length; y++)
+//     for (let x = 0; x < map[y].length; x++) if (shouldRemove.check(map[y][x]))
+//       map[y][x] = new Air();
+// }
 
-function removeLock1() {
-  for (let y = 0; y < map.length; y++)
-    for (let x = 0; x < map[y].length; x++) if (map[y][x].isLock1())
-      map[y][x] = new Air();
-}
-function removeLock2() {
-  for (let y = 0; y < map.length; y++)
-    for (let x = 0; x < map[y].length; x++) if (map[y][x].isLock2())
-      map[y][x] = new Air();
-}
+// function removeLock2() {
+//   for (let y = 0; y < map.length; y++)
+//     for (let x = 0; x < map[y].length; x++) if (map[y][x].isLock2())
+//       map[y][x] = new Air();
+// }
 
 function moveToTile(newx: number, newy: number) {
   map[playery][playerx] = new Air();
   map[newy][newx] = new Player();
   playerx = newx;
   playery = newy;
+
 }
 
-function moveVertical(dy: number) {
-  if (map[playery + dy][playerx].isFlux()
-    || map[playery + dy][playerx].isAir()) {
-    moveToTile(playerx, playery + dy);
-  } else if (map[playery + dy][playerx].isKey1()) {
-    removeLock1();
-    moveToTile(playerx, playery + dy);
-  } else if (map[playery + dy][playerx].isKey2()) {
-    removeLock2();
-    moveToTile(playerx, playery + dy);
-  }
-}
+// function moveVertical(dy: number) {
+//   if (map[playery + dy][playerx].isFlux()
+//     || map[playery + dy][playerx].isAir()) {
+//     moveToTile(playerx, playery + dy);
+//   } else if (map[playery + dy][playerx].isKey1()) {
+//     remove(new RemoveLock1());
+//     moveToTile(playerx, playery + dy);
+//   } else if (map[playery + dy][playerx].isKey2()) {
+//     remove(new RemoveLock2());
+//     moveToTile(playerx, playery + dy);
+//   }
+// }
 
 function update() {
   handleInputs();
