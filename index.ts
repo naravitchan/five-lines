@@ -36,6 +36,7 @@ interface Tile {
   drop(): void;
   rest(): void;
   update(x: number, y: number): void;
+  getBlockOnTopState(): FallingState;
 }
 class Flux implements Tile {
   isAir() { return false; }
@@ -72,6 +73,7 @@ class Flux implements Tile {
   drop() { }
   rest() { }
   update(x: number, y: number) { }
+  getBlockOnTopState() { return new Resting(); }
 }
 class Air implements Tile {
   isAir() { return true; }
@@ -102,6 +104,9 @@ class Air implements Tile {
   drop() { }
   rest() { }
   update(x: number, y: number) { }
+  getBlockOnTopState() {
+    return new Falling();
+  }
 }
 class Player implements Tile {
   isAir() { return false; }
@@ -128,6 +133,7 @@ class Player implements Tile {
   drop() { }
   rest() { }
   update(x: number, y: number) { }
+  getBlockOnTopState() { return new Resting(); }
 }
 class Unbreakable implements Tile {
   isAir() { return false; }
@@ -160,14 +166,20 @@ class Unbreakable implements Tile {
   drop() { }
   rest() { }
   update(x: number, y: number) { }
+  getBlockOnTopState() { return new Resting(); }
 }
 interface FallingState {
   isFalling(): boolean;
   moveHorizontal(tile: Tile, dx: number): void;
+  drop(tile: Tile, x: number, y: number): void;
 }
 class Falling implements FallingState {
   isFalling() { return true; }
   moveHorizontal(tile: Tile, dx: number) { }
+  drop(tile: Tile, x: number, y: number) {
+    map[y + 1][x] = tile;
+    map[y][x] = new Air();
+  }
 }
 class Resting implements FallingState {
   isFalling() { return false; }
@@ -178,19 +190,13 @@ class Resting implements FallingState {
       moveToTile(playerx + dx, playery);
     }
   }
+  drop(tile: Tile, x: number, y: number) { }
 }
 class FallStrategy {
   constructor(private falling: FallingState) { }
   update(tile: Tile, x: number, y: number) {
-    this.falling = map[y + 1][x].isAir()
-      ? new Falling()
-      : new Resting();
-    this.drop(tile, x, y);
-  }
-  private drop(tile: Tile, x: number, y: number) {
-    if (this.falling.isFalling()) {
-      map[y + 1][x] = tile; map[y][x] = new Air();
-    }
+    this.falling = map[y + 1][x].getBlockOnTopState();
+    this.falling.drop(tile, x, y)
   }
   moveHorizontal(tile: Tile, dx: number) {
     this.falling
@@ -238,6 +244,7 @@ class Stone implements Tile {
   update(x: number, y: number) {
     this.fallStrategy.update(this, x, y);
   }
+  getBlockOnTopState() { return new Resting(); }
 }
 class Box implements Tile {
   private fallStrategy: FallStrategy;
@@ -280,6 +287,7 @@ class Box implements Tile {
   update(x: number, y: number) {
     this.fallStrategy.update(this, x, y);
   }
+  getBlockOnTopState() { return new Resting(); }
 }
 class KeyConfiguration {
   constructor(
@@ -336,6 +344,7 @@ class Key implements Tile {
   drop() { }
   rest() { }
   update(x: number, y: number) { }
+  getBlockOnTopState() { return new Resting(); }
 }
 class Lock1 implements Tile {
   constructor(
@@ -373,6 +382,7 @@ class Lock1 implements Tile {
   update(x: number, y: number) { }
   isLock1() { return this.keyConf.is1(); }
   isLock2() { return !this.keyConf.is1(); }
+  getBlockOnTopState() { return new Resting(); }
 }
 
 enum RawInput {
