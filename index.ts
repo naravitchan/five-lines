@@ -181,7 +181,6 @@ class Resting implements FallingState {
 }
 class FallStrategy {
   constructor(private falling: FallingState) { }
-  getFalling() { return this.falling; }
   update(tile: Tile, x: number, y: number) {
     this.falling = map[y + 1][x].isAir()
       ? new Falling()
@@ -192,6 +191,10 @@ class FallStrategy {
     if (this.falling.isFalling()) {
       map[y + 1][x] = tile; map[y][x] = new Air();
     }
+  }
+  moveHorizontal(tile: Tile, dx: number) {
+    this.falling
+      .moveHorizontal(tile, dx);
   }
 }
 class Stone implements Tile {
@@ -223,7 +226,7 @@ class Stone implements Tile {
       TILE_SIZE);
   }
   moveHorizontal(dx: number) {
-    this.fallStrategy.getFalling().moveHorizontal(this, dx);
+    this.fallStrategy.moveHorizontal(this, dx);
   }
   moveVertical(dy: number) { }
   isStony() { return true; }
@@ -265,7 +268,7 @@ class Box implements Tile {
       TILE_SIZE);
   }
   moveHorizontal(dx: number) {
-    this.fallStrategy.getFalling().moveHorizontal(this, dx);
+    this.fallStrategy.moveHorizontal(this, dx);
   }
   moveVertical(dy: number) { }
   isStony() { return false; }
@@ -283,10 +286,12 @@ class KeyConfiguration {
     private color: string,
     private _1: boolean,
     private removeStrategy: RemoveStrategy) { }
-  getColor() { return this.color; }
   is1() { return this._1; }
-  getRemoveStrategy() {
-    return this.removeStrategy;
+  removeLock() {
+    remove(this.removeStrategy)
+  }
+  setColor(g: CanvasRenderingContext2D) {
+    g.fillStyle = this.color;
   }
 }
 class Key implements Tile {
@@ -309,7 +314,7 @@ class Key implements Tile {
   isLock2() { return false; }
   draw(g: CanvasRenderingContext2D,
     x: number, y: number) {
-    g.fillStyle = this.keyConf.getColor();
+    this.keyConf.setColor(g);
     g.fillRect(
       x * TILE_SIZE,
       y * TILE_SIZE,
@@ -317,11 +322,11 @@ class Key implements Tile {
       TILE_SIZE);
   }
   moveHorizontal(dx: number) {
-    remove(this.keyConf.getRemoveStrategy());
+    this.keyConf.removeLock();
     moveToTile(playerx + dx, playery);
   }
   moveVertical(dy: number) {
-    remove(this.keyConf.getRemoveStrategy());
+    this.keyConf.removeLock();
     moveToTile(playerx, playery + dy);
   }
   isStony() { return false; }
@@ -350,7 +355,7 @@ class Lock1 implements Tile {
   isKey2() { return false; }
   draw(g: CanvasRenderingContext2D,
     x: number, y: number) {
-    g.fillStyle = this.keyConf.getColor();
+    this.keyConf.setColor(g);
     g.fillRect(
       x * TILE_SIZE,
       y * TILE_SIZE,
