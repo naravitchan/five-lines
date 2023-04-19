@@ -468,14 +468,6 @@ class Map {
       for (let x = 0; x < rawMap[y].length; x++)
         this.map[y][x] = transformTile(RAW_TILES[rawMap[y][x]]);
     }
-
-    // this.map = new Array(rawMap.length);
-    // for (let y = 0; y < rawMap.length; y++) {
-    //   this.map[y] = new Array(rawMap[y].length);
-    //   for (let x = 0; x < rawMap[y].length; x++) {
-    //     this.map[y][x] = transformTile(rawMap[y][x]);
-    //   }
-    // }
   }
   setMap(map: Tile[][]) {
     this.map = map;
